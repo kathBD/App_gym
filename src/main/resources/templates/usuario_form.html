@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${usuario.usuarioId != null ? 'Editar Usuario' : 'Nuevo Usuario'}">Formulario Usuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+
+       body {
+           background-image: url('/img/fuerza.jpg');
+           background-size: cover;
+           background-position: center;
+           background-repeat: no-repeat;
+           min-height: 100vh;
+           margin: 0;
+           color: white;
+       }
+
+       .container {
+           min-height: 80vh;  /* Esto asegura que el contenedor tenga suficiente altura */
+           padding-bottom: 100px;  /* Asegura que no se oculte el botón */
+       }
+
+       /* Esto asegura que el botón siempre se mantenga visible al final del formulario */
+       .form-footer {
+           margin-top: 30px;
+           padding-top: 10px;
+           position: relative;
+       }
+
+       .btn-save {
+           width: 100%;  
+       }
+    </style>
+
+
+
+
+</head>
+<body>
+<div class="container mt-5">
+    <h2 th:text="${usuario.usuarioId != null ? 'Editar Usuario' : 'Registrar Nuevo Usuario'}"></h2>
+
+    <form th:action="@{/usuarios/guardar}" th:object="${usuario}" method="post">
+        <!-- Campo oculto para ID (necesario para editar) -->
+        <input type="hidden" th:field="*{usuarioId}" />
+
+        <div class="mb-3">
+            <label for="nombre">Nombre</label>
+            <input type="text" class="form-control" th:field="*{nombre}" id="nombre" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="correo">Correo</label>
+            <input type="email" class="form-control" th:field="*{correo}" id="correo" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="password">Contraseña</label>
+            <input type="password" class="form-control" th:field="*{password}" id="password"
+                   th:placeholder="${usuario.usuarioId != null ? 'Dejar en blanco si no deseas cambiar' : ''}" />
+        </div>
+
+        <div class="mb-3">
+            <label for="telefono">Teléfono</label>
+            <input type="text" class="form-control" th:field="*{telefono}" id="telefono" />
+        </div>
+
+        <div class="mb-3">
+            <label for="sexo">Sexo</label>
+            <select class="form-select" th:field="*{sexo}" id="sexo">
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="peso">Peso</label>
+            <input type="number" class="form-control" th:field="*{peso}" id="peso" step="0.01" />
+        </div>
+
+        <div class="mb-3">
+            <label for="estatura">Estatura</label>
+            <input type="number" class="form-control" th:field="*{estatura}" id="estatura" step="0.01" />
+        </div>
+
+        <div class="mb-3">
+            <label for="fechaNacimiento">Fecha de Nacimiento</label>
+            <input type="date" class="form-control" th:field="*{fechaNacimiento}" id="fechaNacimiento" />
+        </div>
+
+        <div class="mb-3">
+            <label for="especialidad">Especialidad</label>
+            <input type="text" class="form-control" th:field="*{especialidad}" id="especialidad" />
+        </div>
+
+        <div class="mb-3">
+            <label for="horarioInicio">Horario Inicio</label>
+            <input type="time" class="form-control" th:field="*{horarioInicio}" id="horarioInicio" />
+        </div>
+
+        <div class="mb-3">
+            <label for="horarioFin">Horario Fin</label>
+            <input type="time" class="form-control" th:field="*{horarioFin}" id="horarioFin" />
+        </div>
+
+        <div class="mb-3">
+            <label for="rol">Rol</label>
+            <select class="form-select" th:field="*{rol.rolId}" id="rol" required>
+                <option th:each="rol : ${roles}" th:value="${rol.rolId}" th:text="${rol.nombre}"></option>
+            </select>
+        </div>
+
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" th:field="*{activo}" id="activo">
+            <label class="form-check-label" for="activo">Usuario activo</label>
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-save"></i> Guardar
+        </button>
+        <a th:href="@{/usuarios}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Cancelar
+        </a>
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${usuario.usuarioId != null ? 'Editar Usuario' : 'Nuevo Usuario'}">Formulario Usuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            background-image: url('/img/fuerza.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 50px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #0056b3;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+        }
+
+        label {
+            color: #007bff;
+        }
+
+        .btn-save, .btn-secondary {
+            width: 20%;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #beceed;
+        }
+
+        .btn-success {
+            background-color: #007bff;
+            border: none;
+        }
+
+        .btn-success:hover {
+            background-color: #0056b3;
+        }
+
+        .form-check-label {
+            font-size: 14px;
+            color: #2a4bd1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Mensajes de éxito y error -->
+    <div th:if="${mensaje}" class="alert alert-success">
+        <span th:text="${mensaje}"></span>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger">
+        <span th:text="${error}"></span>
+    </div>
+    <div class="mb-3">
+        <!-- Aquí está el enlace con la ruta corregida -->
+        <a href="/admin" class="btn btn-primary">Regresar</a>
+    </div>
+
+    <h2 th:text="${usuario.usuarioId != null ? 'Editar Usuario' : 'Registrar Nuevo Usuario'}"></h2>
+
+    <form th:action="@{/usuarios/guardar}" th:object="${usuario}" method="post">
+        <input type="hidden" th:field="*{usuarioId}" />
+
+        <!-- Nombre -->
+        <div class="mb-3">
+            <label for="nombre">Nombre</label>
+            <input type="text" class="form-control" th:field="*{nombre}" id="nombre" required />
+        </div>
+
+        <!-- Correo -->
+        <div class="mb-3">
+            <label for="correo">Correo</label>
+            <input type="email" class="form-control" th:field="*{correo}" id="correo" required />
+        </div>
+
+        <!-- Contraseña -->
+        <div class="mb-3">
+            <label for="password">Contraseña</label>
+            <input type="password" class="form-control" th:field="*{password}" id="password" required />
+        </div>
+
+        <!-- Teléfono -->
+        <div class="mb-3">
+            <label for="telefono">Teléfono</label>
+            <input type="text" class="form-control" th:field="*{telefono}" id="telefono" />
+        </div>
+
+        <!-- Sexo -->
+        <div class="mb-3">
+            <label for="sexo">Sexo</label>
+            <select class="form-select" th:field="*{sexo}" id="sexo" required>
+                <option value="M" th:selected="*{sexo == 'M'}">Masculino</option>
+                <option value="F" th:selected="*{sexo == 'F'}">Femenino</option>
+            </select>
+        </div>
+
+        <!-- Peso -->
+        <div class="mb-3">
+            <label for="peso">Peso</label>
+            <input type="number" step="0.01" class="form-control" th:field="*{peso}" id="peso" required />
+        </div>
+
+        <!-- Estatura -->
+        <div class="mb-3">
+            <label for="estatura">Estatura</label>
+            <input type="number" step="0.01" class="form-control" th:field="*{estatura}" id="estatura" required />
+        </div>
+
+        <!-- Fecha de nacimiento -->
+        <div class="mb-3">
+            <label for="fechaNacimiento">Fecha de Nacimiento</label>
+            <input type="date" class="form-control" th:field="*{fechaNacimiento}" id="fechaNacimiento" required />
+        </div>
+
+        <!-- Estado Físico -->
+        <div class="mb-3">
+            <label for="estadoFisico">Estado Físico</label>
+            <input type="text" class="form-control" th:field="*{estadoFisico}" id="estadoFisico" />
+        </div>
+
+        <!-- Objetivo -->
+        <div class="mb-3">
+            <label for="objetivo">Objetivo</label>
+            <input type="text" class="form-control" th:field="*{objetivo}" id="objetivo" />
+        </div>
+
+        <!-- Especialidad -->
+        <div class="mb-3">
+            <label for="especialidad">Especialidad</label>
+            <input type="text" class="form-control" th:field="*{especialidad}" id="especialidad" />
+        </div>
+
+        <!-- Horario de Inicio -->
+        <div class="mb-3">
+            <label for="horarioInicio">Horario de Inicio</label>
+            <input type="time" class="form-control" th:field="*{horarioInicio}" id="horarioInicio" />
+        </div>
+
+        <!-- Horario de Fin -->
+        <div class="mb-3">
+            <label for="horarioFin">Horario de Fin</label>
+            <input type="time" class="form-control" th:field="*{horarioFin}" id="horarioFin" />
+        </div>
+
+        <!-- Estado Activo -->
+        <div class="mb-3">
+            <label for="activo">Activo</label>
+            <select class="form-select" th:field="*{activo}" id="activo" required>
+                <option value="true" th:selected="*{activo}">Activo</option>
+                <option value="false" th:selected="*{activo == false}">Inactivo</option>
+            </select>
+        </div>
+
+        <!-- Rol -->
+        <div class="mb-3">
+            <label for="rol">Rol</label>
+            <select class="form-select" th:field="*{rol.rolId}" id="rol" required>
+                <option th:each="rol : ${roles}" th:value="${rol.rolId}" th:text="${rol.nombre}"></option>
+            </select>
+        </div>
+
+        <!-- Botón de Guardar -->
+        <button type="submit" class="btn btn-primary">Guardar</button>
+
+        <!-- Botón Cancelar (Enlace estilizado como botón) -->
+        <a href="/usuarios" class="btn btn-secondary">Cancelar</a>
+
+    </form>
+</div>
+
+</body>
+</html>

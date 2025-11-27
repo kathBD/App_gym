@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Admin | VibraFit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Iconos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f5f6fa;
+             color: white;
+        }
+
+        .sidebar {
+            height: 100vh;
+            background-color: #07080A;
+            color: white;
+            padding-top: 60px;
+            position: fixed;
+            width: 250px;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 15px 25px;
+        }
+
+        .sidebar a:hover {
+            background-color: #0d6efd;
+        }
+
+        .main-content {
+         margin-left: 250px;
+         padding: 30px;
+         background-image: url('/img/trainner.jpg');
+         background-size: cover;
+         background-position: center;
+         background-repeat: no-repeat;
+         min-height: 100vh;
+         color: white;
+         position: relative;
+        }
+
+        .main-content::before {
+         content: "";
+         position: absolute;
+         top: 0;
+         left: 0;
+         height: 100%;
+         width: 100%;
+         background-color: rgba(0,0,0,0.5); /* Oscurece la imagen */
+           z-index: 1;
+       }
+
+       .main-content > * {
+        position: relative;
+        z-index: 2;
+          }
+
+        .card-kpi {
+            border-left: 5px solid #0d6efd;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            color: #0d6efd;
+        }
+
+        .card-kpi .icon {
+            font-size: 2rem;
+            color: #0d6efd;
+        }
+
+        .welcome {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="text-center mb-4">
+        <img src="/img/logo.jpg" alt="Logo" class="rounded-circle" width="80">
+        <h5 class="mt-2">VibraFit Admin</h5>
+    </div>
+    <a href="/inicio"><i class="bi bi-house-door-fill me-2"></i>Inicio</a>
+    <a href="/usuarios"><i class="bi bi-people-fill me-2"></i>Gestión de Usuarios</a>
+    <a href="#"><i class="bi bi-bell-fill me-2"></i>Notificaciones</a>
+    <a href="#"><i class="bi bi-card-checklist me-2"></i>Membresías</a>
+    <form th:action="@{/logout}" method="post" class="mt-4 px-3">
+        <button class="btn btn-outline-light w-100"><i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión</button>
+    </form>
+</div>
+
+<!-- Contenido Principal -->
+<div class="main-content">
+    <div class="welcome">
+        <h2 class="text-white">Bienvenido, Administrador</h2>
+        <p class="text-muted-white">Panel principal del sistema VibraFit</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- KPI Usuarios -->
+        <div class="col-md-4">
+            <div class="card-kpi">
+                <div class="d-flex align-items-center">
+                    <div class="icon me-3"><i class="bi bi-person-lines-fill"></i></div>
+                    <div>
+                        <h6 class="mb-0">Usuarios Registrados</h6>
+                        <h4>125</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Membresías -->
+        <div class="col-md-4">
+            <div class="card-kpi">
+                <div class="d-flex align-items-center">
+                    <div class="icon me-3"><i class="bi bi-card-checklist"></i></div>
+                    <div>
+                        <h6 class="mb-0">Membresías Activas</h6>
+                        <h4>48</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Notificaciones -->
+        <div class="col-md-4">
+            <div class="card-kpi">
+                <div class="d-flex align-items-center">
+                    <div class="icon me-3"><i class="bi bi-bell-fill"></i></div>
+                    <div>
+                        <h6 class="mb-0">Notificaciones Nuevas</h6>
+                        <h4>7</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos rápidos -->
+    <div class="row mt-5 g-4">
+        <div class="col-md-4">
+            <a href="/usuarios" class="btn btn-outline-primary w-100 py-3">
+                <i class="bi bi-person-gear me-2"></i>Gestionar Usuarios
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="#" class="btn btn-outline-success w-100 py-3">
+                <i class="bi bi-envelope-open me-2"></i>Ver Notificaciones
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="#" class="btn btn-outline-warning w-100 py-3">
+                <i class="bi bi-cash-coin me-2"></i>Gestionar Membresías
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

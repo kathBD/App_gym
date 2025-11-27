@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Bienvenido</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Enlaces de navegación -->
+<nav>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav ms-auto">
+      <li class="nav-item">
+        <a class="nav-link text-white mx-3" th:href="@{/login}">Login</a>
+
+    </ul>
+  </div>
+
+</nav>
+<div class="container text-center mt-5">
+  <h1>🏋️ ¡Bienvenido a la plataforma de entrenamiento!</h1>
+  <p>Gestiona usuarios, rutinas y ejercicios de forma eficiente.</p>
+  <div class="mt-4">
+    <a href="/usuarios" class="btn btn-primary">Ir a gestión de usuarios</a>
+  </div>
+  <div>
+    <img src="/img/gym.jpg" class="img-fluid rounded" style="max-width: 100%;">
+  </div>
+
+
+</div>
+</body>
+</html>
