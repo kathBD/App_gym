@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity // Reemplaza a @EnableGlobalMethodSecurity (que está obsoleta)
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
@@ -29,42 +31,52 @@ public class SecurityConfig {
         this.successHandler = successHandler;
     }
 
-    // Definir PasswordEncoder como un bean
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Utiliza el algoritmo BCrypt
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable()) // Deshabilitado para facilitar pruebas en API y formularios
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/inicio", "/perfil", "/login", "/css/**", "/js/**", "/img/**").permitAll()  // Rutas públicas
-                        // Aquí es donde aseguramos que el nombre de la autoridad tiene el prefijo ROLE_
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMINISTRADOR")  // Solo ADMIN puede acceder a /admin/**
-                        .requestMatchers("/usuarios/**").hasAuthority("ROLE_ADMINISTRADOR")  // Solo ADMIN puede acceder a /usuarios/**
-                        .requestMatchers("/entrenador/**").hasAuthority("ROLE_ENTRENADOR")  // Solo ENTRENADOR puede acceder a /entrenador/**
-                        .requestMatchers("/cliente/**").hasAuthority("ROLE_CLIENTE")  // Solo CLIENTE puede acceder a /cliente/**
-                        .anyRequest().authenticated()  // El resto de las rutas requiere autenticación
+                        // 1. Recursos estáticos y rutas públicas
+                        .requestMatchers("/", "/inicio", "/login", "/css/**", "/js/**", "/img/**", "/error/**").permitAll()
+
+                        // 2. Seguridad del CRUD de Usuarios (Web y API)
+                        // Usamos hasAuthority porque coincide exactamente con lo que devuelve tu UserDetailsService
+                        .requestMatchers("/usuarios/editar/**", "/usuarios/eliminar/**", "/usuarios/guardar/**").hasAuthority("ROLE_ADMINISTRADOR")
+                        .requestMatchers("/usuarios/**").hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_ENTRENADOR")
+
+                        // 3. Rutas de la API Rest
+                        .requestMatchers("/api/usuarios/**").hasAuthority("ROLE_ADMINISTRADOR")
+
+                        // 4. Rutas específicas por Rol
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMINISTRADOR")
+                        .requestMatchers("/entrenador/**").hasAuthority("ROLE_ENTRENADOR")
+                        .requestMatchers("/cliente/**").hasAuthority("ROLE_CLIENTE")
+
+                        .anyRequest().authenticated()
                 )
-                .authenticationProvider(authenticationProvider())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .usernameParameter("correo")
                         .passwordParameter("password")
+                        .successHandler(successHandler) // Tu manejador personalizado para redirigir según rol
                         .failureUrl("/login?error=true")
-                        .successHandler(successHandler)
-                        .permitAll()  // Permitir acceso sin autenticación a la página de login
+                        .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
-                        .permitAll()  // Permitir acceso sin autenticación al logout
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
                 )
                 .exceptionHandling(exception -> exception
-                        .accessDeniedPage("/error/403")  // Página cuando se deniega el acceso
-                )
-                .csrf(csrf -> csrf.disable());  // Deshabilitar CSRF (para simplificar el ejemplo)
+                        .accessDeniedPage("/error/403") // Asegúrate de tener esta vista o controlador
+                );
 
         return http.build();
     }
@@ -73,7 +85,7 @@ public class SecurityConfig {
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());  // Asegúrate de que el PasswordEncoder esté correctamente inyectado
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 

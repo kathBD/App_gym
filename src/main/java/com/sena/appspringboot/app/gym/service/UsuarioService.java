@@ -13,10 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Servicio que maneja la lógica de negocio relacionada con los usuarios.
- * Esta clase se comunica con los repositorios para acceder a la base de datos.
- */
 @Service
 public class UsuarioService {
 
@@ -30,114 +26,110 @@ public class UsuarioService {
     private PasswordEncoder passwordEncoder;
 
     /**
-     * Método para cifrar todas las contraseñas que están en texto plano.
-     * Ideal para usar una sola vez para migrar las contraseñas existentes.
+     * Cifra contraseñas en texto plano al iniciar la app (Migración).
      */
     @PostConstruct
     public void cifrarTodasLasContrasenas() {
         List<Usuario> usuarios = usuarioRepository.findAll();
         for (Usuario u : usuarios) {
-            if (u.getPassword() != null && !u.getPassword().startsWith("$2a$")) { // Verifica si no está cifrada
-                String passCifrada = passwordEncoder.encode(u.getPassword());
-                u.setPassword(passCifrada);
+            if (u.getPassword() != null && !u.getPassword().startsWith("$2a$")) {
+                u.setPassword(passwordEncoder.encode(u.getPassword()));
                 usuarioRepository.save(u);
             }
         }
     }
 
-    /**
-     * Obtiene la lista completa de usuarios registrados en el sistema.
-     *
-     * @return Lista de usuarios.
-     */
     public List<Usuario> getAllUsuarios() {
         return usuarioRepository.findAll();
     }
 
-    /**
-     * Obtiene todos los usuarios que tienen asignado un rol específico (por nombre).
-     * El nombre del rol no es sensible a mayúsculas/minúsculas.
-     *
-     * @param nombreRol Nombre del rol.
-     * @return Lista de usuarios filtrados por el rol especificado.
-     */
     public List<Usuario> getUsuariosPorRol(String nombreRol) {
         return usuarioRepository.findByRolNombreIgnoreCase(nombreRol);
     }
 
-    /**
-     * Busca un usuario por su ID.
-     *
-     * @param id ID del usuario.
-     * @return Optional con el usuario si existe.
-     */
     public Optional<Usuario> obtenerPorId(Long id) {
         return usuarioRepository.findById(id);
     }
 
-    /**
-     * Elimina un usuario por su ID.
-     *
-     * @param id ID del usuario a eliminar.
-     */
     public void eliminarUsuario(Long id) {
         usuarioRepository.deleteById(id);
     }
 
     /**
-     * Guarda o actualiza un usuario.
-     * - Codifica la contraseña si es nueva.
-     * - Asigna el rol correcto.
-     * - Mantiene la contraseña existente si no se modifica.
-     * - Asigna 'activo = true' si es nulo.
-     *
-     * @param usuario Usuario a guardar o actualizar.
-     * @return Usuario guardado.
+     * Guarda un usuario nuevo o actualiza uno existente de forma selectiva.
      */
     @Transactional
-    public Usuario guardarUsuario(Usuario usuario) {
-        // Verificar y asignar el rol si viene con ID
-        if (usuario.getRol() != null && usuario.getRol().getRolId() != null) {
-            Rol rol = rolRepository.findById(usuario.getRol().getRolId())
-                    .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
-            usuario.setRol(rol);
+    public Usuario guardarUsuario(Usuario usuarioForm) {
+        Usuario usuarioParaGuardar;
+
+        if (usuarioForm.getUsuarioId() != null) {
+            // --- CASO: EDICIÓN ---
+            // 1. Recuperamos los datos completos de la BD (incluye estatura, peso, etc.)
+            usuarioParaGuardar = usuarioRepository.findById(usuarioForm.getUsuarioId())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + usuarioForm.getUsuarioId()));
+
+            // 2. Solo sobreescribimos los campos que vienen del formulario web
+            usuarioParaGuardar.setNombre(usuarioForm.getNombre());
+            usuarioParaGuardar.setCorreo(usuarioForm.getCorreo());
+            usuarioParaGuardar.setTelefono(usuarioForm.getTelefono());
+            usuarioParaGuardar.setFechaNacimiento(usuarioForm.getFechaNacimiento());
+            usuarioParaGuardar.setObjetivo(usuarioForm.getObjetivo());
+            usuarioParaGuardar.setEstadoFisico(usuarioForm.getEstadoFisico());
+
+            if (usuarioForm.getActivo() != null) {
+                usuarioParaGuardar.setActivo(usuarioForm.getActivo());
+            }
+
+            // 3. Actualización de Rol (si se cambió en el select)
+            if (usuarioForm.getRol() != null && usuarioForm.getRol().getRolId() != null) {
+                Rol rol = rolRepository.findById(usuarioForm.getRol().getRolId())
+                        .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                usuarioParaGuardar.setRol(rol);
+            }
+
+            // 4. Gestión de Contraseña en edición
+            // Si el campo de contraseña no está vacío y no es un hash, la ciframos y actualizamos
+            if (usuarioForm.getPassword() != null && !usuarioForm.getPassword().isBlank()) {
+                if (!usuarioForm.getPassword().startsWith("$2a$")) {
+                    usuarioParaGuardar.setPassword(passwordEncoder.encode(usuarioForm.getPassword()));
+                }
+            }
+            // Si viene vacío, se queda la contraseña que ya tenía 'usuarioParaGuardar'
+
+        } else {
+            // --- CASO: NUEVO REGISTRO ---
+            usuarioParaGuardar = usuarioForm;
+
+            // Validar correo único
+            if (usuarioRepository.findByCorreo(usuarioParaGuardar.getCorreo()) != null) {
+                throw new RuntimeException("El correo ya está registrado.");
+            }
+
+            // Cifrar contraseña obligatoria
+            if (usuarioParaGuardar.getPassword() != null) {
+                usuarioParaGuardar.setPassword(passwordEncoder.encode(usuarioParaGuardar.getPassword()));
+            }
+
+            // Asignar rol
+            if (usuarioParaGuardar.getRol() != null && usuarioParaGuardar.getRol().getRolId() != null) {
+                Rol rol = rolRepository.findById(usuarioParaGuardar.getRol().getRolId())
+                        .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                usuarioParaGuardar.setRol(rol);
+            }
+
+            if (usuarioParaGuardar.getActivo() == null) {
+                usuarioParaGuardar.setActivo(true);
+            }
         }
 
-        // Verificar que no exista un usuario con el mismo correo
-        if (usuarioRepository.findByCorreo(usuario.getCorreo()) != null && usuario.getUsuarioId() == null) {
-            throw new RuntimeException("Ya existe un usuario con ese correo.");
-        }
-
-        // Codificar contraseña si viene en el formulario
-        if (usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
-            String passwordCifrada = passwordEncoder.encode(usuario.getPassword());
-            usuario.setPassword(passwordCifrada);
-        } else if (usuario.getUsuarioId() != null) {
-            // Si estás editando y no mandaste contraseña, conservar la actual
-            String passwordActual = usuarioRepository.findById(usuario.getUsuarioId())
-                    .map(Usuario::getPassword).orElse(null);
-            usuario.setPassword(passwordActual);
-        }
-
-        // Si el campo 'activo' es null, asignamos true por defecto
-        if (usuario.getActivo() == null) {
-            usuario.setActivo(true);
-        }
-
-        return usuarioRepository.save(usuario);
+        // 5. Guardamos. Los campos como 'estatura' o 'peso' que no se tocaron
+        // mantienen el valor que tenían originalmente en la base de datos.
+        return usuarioRepository.save(usuarioParaGuardar);
     }
 
-    /**
-     * Busca un usuario por su correo electrónico.
-     *
-     * @param correo Correo electrónico del usuario.
-     * @return Usuario encontrado o null si no existe.
-     */
     public Usuario findByCorreo(String correo) {
         return usuarioRepository.findByCorreo(correo);
     }
-
-
 }
 
 

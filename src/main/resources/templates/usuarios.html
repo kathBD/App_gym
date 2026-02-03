@@ -2,100 +2,96 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Usuarios</title>
+    <title>Usuarios - VibraFit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-
     <style>
         body {
-        background-image: url('/img/fuerza.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        min-height: 100vh;
-        margin: 0;
-        color: white;
-    }
+            background-image: url('/img/fuerza.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            margin: 0;
+            color: white;
+        }
 
-    .container {
-        margin-top: 80px;
-    }
+        .container {
+            margin-top: 100px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+        }
 
-     .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.5);  /* Fondo semitransparente */
-    z-index: 1000;
-}
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
 
+        .table { color: white; }
 
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
 
+        /* Estilo para el modal oscuro */
+        .modal-content {
+            background-color: #1a1a1a;
+            color: white;
+            border: 1px solid #dc3545;
+        }
+        .modal-header { border-bottom: 1px solid #333; }
+        .modal-footer { border-top: 1px solid #333; }
     </style>
-
 </head>
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container-fluid">
-        <a class="navbar-brand text-white" href="#">
+        <a class="navbar-brand text-white" th:href="@{/admin/dashboard}">
             <img src="/img/logo.jpg" alt="Logo" width="40" class="d-inline-block align-text-top me-2">
             VibraFit
         </a>
-
-        <!-- Botón colapsable para móviles -->
-        <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- Enlaces de navegación -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link text-white mx-3" th:href="@{/inicio}">Inicio</a>
+                    <a class="nav-link text-white mx-3" th:href="@{/admin}">Dashboard</a>
                 </li>
-
                 <li class="nav-item">
                     <form th:action="@{/logout}" method="post">
-                        <button class="btn btn-outline-light" type="submit"> <i class="bi bi-box-arrow-right me-1"></i>Cerrar sesión</button>
+                        <button class="btn btn-outline-light" type="submit">Cerrar sesión</button>
                     </form>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
-<div class="container mt-5">
-    <h2>Lista de Usuarios</h2>
 
-    <div class="mb-3">
-        <a href="/usuarios/nuevo" class="btn btn-success">+ Nuevo Usuario</a>
+<div class="container">
+    <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${mensajeExito}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <form class="mb-3" method="get" action="/usuarios">
-        <div class="mb-2">
-            <label for="rol" class="form-label">Filtrar por Rol:</label>
-            <input type="text" id="rol" name="rol" placeholder="Cliente, Entrenador, Administrador" class="form-control">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Lista de Usuarios</h2>
+        <div>
+            <a th:href="@{/admin}" class="btn btn-outline-info me-2">Volver al Panel</a>
+            <a href="/usuarios/nuevo" class="btn btn-success">Nuevo Usuario</a>
         </div>
-        <button type="submit" class="btn btn-primary">Buscar</button>
-    </form>
-
-
-
-    <div th:if="${rolFiltrado}">
-        <p>Usuarios con rol: <strong th:text="${rolFiltrado}"></strong></p>
     </div>
 
-    <table class="table table-striped">
-        <thead>
+    <table class="table table-hover">
+        <thead class="table-dark">
         <tr>
             <th>ID</th>
             <th>Nombre</th>
             <th>Correo</th>
             <th>Rol</th>
-            <th>Acciones</th>
-
+            <th class="text-center">Acciones</th>
         </tr>
         </thead>
         <tbody>
@@ -103,35 +99,67 @@
             <td th:text="${usuario.usuarioId}"></td>
             <td th:text="${usuario.nombre}"></td>
             <td th:text="${usuario.correo}"></td>
-            <td th:text="${usuario.rol != null ? usuario.rol.nombre : 'Sin Rol'}"></td>
+            <td><span class="badge bg-secondary" th:text="${usuario.rol?.nombre}"></span></td>
+            <td class="text-center">
+                <a th:href="@{/usuarios/ver/{id}(id=${usuario.usuarioId})}" class="btn btn-sm btn-info text-white"><i class="bi bi-eye"></i></a>
+                <a th:href="@{/usuarios/editar/{id}(id=${usuario.usuarioId})}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i></a>
 
-            <td>
-                <!-- Botón Editar -->
-                <a th:href="@{/usuarios/editar/{id}(id=${usuario.usuarioId})}" class="btn btn-sm btn-outline-primary" title="Editar">
-                    <i class="bi bi-pencil-square"></i>
-                </a>
-
-
-                <!-- Botón Eliminar -->
-                <form th:action="@{/usuarios/eliminar/{id}(id=${usuario.usuarioId})}" method="post" th:object="${usuario}"
-                      style="display:inline-block;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
-                    <button type="submit" class="btn btn-sm btn-danger">
-                        <i class="bi bi-trash"></i>
-                    </button>
-
-                    <a th:href="@{/usuarios/ver/{id}(id=${usuario.usuarioId})}" class="btn btn-sm btn-info" title="Ver">
-                        <i class="bi bi-eye"></i>
-                    </a>
-
-
-
-                </form>
+                <button type="button" class="btn btn-sm btn-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmDeleteModal"
+                        th:data-id="${usuario.usuarioId}"
+                        th:data-nombre="${usuario.nombre}">
+                    <i class="bi bi-trash"></i>
+                </button>
             </td>
-
-
         </tr>
         </tbody>
     </table>
 </div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Advertencia</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar permanentemente al usuario <strong id="modalUserName"></strong>?
+                <p class="text-danger mt-2 small">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="post">
+                    <button type="submit" class="btn btn-danger">Eliminar Usuario</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Lógica para pasar datos al modal
+    const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+    confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+        // Botón que disparó el modal
+        const button = event.relatedTarget;
+
+        // Extraer info de los atributos th:data-*
+        const id = button.getAttribute('data-id');
+        const nombre = button.getAttribute('data-nombre');
+
+        // Actualizar el texto del nombre
+        const modalUserName = confirmDeleteModal.querySelector('#modalUserName');
+        modalUserName.textContent = nombre;
+
+        // Actualizar la ruta del formulario de eliminación
+        const deleteForm = confirmDeleteModal.querySelector('#deleteForm');
+        deleteForm.action = '/usuarios/eliminar/' + id;
+    });
+</script>
+
 </body>
 </html>

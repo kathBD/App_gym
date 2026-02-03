@@ -1,207 +1,250 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${usuario.usuarioId != null ? 'Editar Usuario' : 'Nuevo Usuario'}">Formulario Usuario</title>
+    <title th:text="${usuario.usuarioId != null ? 'Editar Usuario | VibraFit' : 'Nuevo Usuario | VibraFit'}">Formulario Usuario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
     <style>
+        :root {
+            --primary-color: #00d2ff;
+            --success-color: #2ecc71;
+            --glass-bg: rgba(15, 15, 15, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(255, 255, 255, 0.05);
+        }
+
         body {
-            background-image: url('/img/fuerza.jpg');
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/img/fuerza.jpg');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
+            background-attachment: fixed;
             min-height: 100vh;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
             margin: 0;
             color: white;
         }
 
-        .container {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-            padding: 30px;
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
             width: 100%;
-            max-width: 600px;
-            margin-top: 50px;
+            max-width: 900px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
         h2 {
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: white;
             text-align: center;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #0056b3;
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .form-control, .form-select {
-            border-radius: 8px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            color: white !important;
+            border-radius: 10px;
+            padding: 12px;
+            transition: all 0.3s;
         }
 
-        label {
-            color: #007bff;
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(0, 210, 255, 0.25);
+            outline: none;
         }
 
-        .btn-save, .btn-secondary {
-            width: 20%;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
+        .form-select option {
+            background-color: #1a1a1a;
             color: white;
         }
 
-        .btn-secondary:hover {
-            background-color: #beceed;
+        .section-title {
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
+            margin: 30px 0 20px 0;
+            font-size: 1rem;
+            color: #aaa;
+            font-weight: 600;
+            text-transform: uppercase;
         }
 
-        .btn-success {
-            background-color: #007bff;
+        .btn-primary-vibra {
+            background: linear-gradient(135deg, var(--primary-color), #0099ff);
             border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
-        .btn-success:hover {
-            background-color: #0056b3;
+        .btn-primary-vibra:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.4);
         }
 
-        .form-check-label {
-            font-size: 14px;
-            color: #2a4bd1;
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid #ff4757;
+            color: #ff4757;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #ff4757;
+            color: white;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- Mensajes de éxito y error -->
-    <div th:if="${mensaje}" class="alert alert-success">
-        <span th:text="${mensaje}"></span>
+<div class="glass-panel">
+    <div class="text-center mb-4">
+        <img src="/img/logo.jpg" alt="Logo" width="60" class="rounded-circle border border-info mb-2">
+        <h2 th:text="${usuario.usuarioId != null ? 'Editar Usuario' : 'Registrar Nuevo Usuario'}"></h2>
+        <p class="text-muted small">Complete todos los campos para gestionar el perfil en VibraFit</p>
     </div>
 
-    <div th:if="${error}" class="alert alert-danger">
-        <span th:text="${error}"></span>
+    <div th:if="${mensaje}" class="alert alert-success border-start border-4 border-success">
+        <i class="bi bi-check2-circle me-2"></i> <span th:text="${mensaje}"></span>
     </div>
-    <div class="mb-3">
-        <!-- Aquí está el enlace con la ruta corregida -->
-        <a href="/admin" class="btn btn-primary">Regresar</a>
+    <div th:if="${error}" class="alert alert-danger border-start border-4 border-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i> <span th:text="${error}"></span>
     </div>
-
-    <h2 th:text="${usuario.usuarioId != null ? 'Editar Usuario' : 'Registrar Nuevo Usuario'}"></h2>
 
     <form th:action="@{/usuarios/guardar}" th:object="${usuario}" method="post">
         <input type="hidden" th:field="*{usuarioId}" />
 
-        <!-- Nombre -->
-        <div class="mb-3">
-            <label for="nombre">Nombre</label>
-            <input type="text" class="form-control" th:field="*{nombre}" id="nombre" required />
+        <div class="section-title">Información de Acceso</div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label"><i class="bi bi-person"></i> Nombre Completo</label>
+                <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej: Juan Pérez" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label"><i class="bi bi-envelope"></i> Correo Electrónico</label>
+                <input type="email" class="form-control" th:field="*{correo}" placeholder="ejemplo@gym.com" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label"><i class="bi bi-key"></i> Contraseña</label>
+                <input type="password" class="form-control" th:field="*{password}" th:required="${usuario.usuarioId == null}" placeholder="••••••••" />
+                <small class="text-muted" th:if="${usuario.usuarioId != null}">Dejar en blanco para no cambiar</small>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label"><i class="bi bi-person-badge"></i> Rol de Usuario</label>
+                <select class="form-select" th:field="*{rol.rolId}" required>
+                    <option th:each="rol : ${roles}" th:value="${rol.rolId}" th:text="${rol.nombre}"></option>
+                </select>
+            </div>
         </div>
 
-        <!-- Correo -->
-        <div class="mb-3">
-            <label for="correo">Correo</label>
-            <input type="email" class="form-control" th:field="*{correo}" id="correo" required />
+        <div class="section-title">Datos Personales y Físicos</div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label"><i class="bi bi-telephone"></i> Teléfono</label>
+                <input type="text" class="form-control" th:field="*{telefono}" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label"><i class="bi bi-gender-ambiguous"></i> Sexo</label>
+                <select class="form-select" th:field="*{sexo}" required>
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label"><i class="bi bi-calendar-date"></i> Nacimiento</label>
+                <input type="date" class="form-control" th:field="*{fechaNacimiento}" required />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label"><i class="bi bi-speedometer"></i> Peso (kg)</label>
+                <input type="number" step="0.01" class="form-control" th:field="*{peso}" required />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label"><i class="bi bi-arrows-expand"></i> Estatura (m)</label>
+                <input type="number" step="0.01" class="form-control" th:field="*{estatura}" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label"><i class="bi bi-activity"></i> Estado Físico</label>
+                <input type="text" class="form-control" th:field="*{estadoFisico}" placeholder="Ej: Sedentario, Activo..." />
+            </div>
         </div>
 
-        <!-- Contraseña -->
-        <div class="mb-3">
-            <label for="password">Contraseña</label>
-            <input type="password" class="form-control" th:field="*{password}" id="password" required />
+        <div class="section-title">Perfil Deportivo</div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label"><i class="bi bi-bullseye"></i> Objetivo</label>
+                <input type="text" class="form-control" th:field="*{objetivo}" placeholder="Ej: Bajar de peso" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label"><i class="bi bi-star"></i> Especialidad</label>
+                <input type="text" class="form-control" th:field="*{especialidad}" placeholder="Ej: CrossFit, Yoga..." />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label"><i class="bi bi-clock"></i> Horario Inicio</label>
+                <input type="time" class="form-control" th:field="*{horarioInicio}" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label"><i class="bi bi-clock-fill"></i> Horario Fin</label>
+                <input type="time" class="form-control" th:field="*{horarioFin}" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label"><i class="bi bi-shield-check"></i> Estado Cuenta</label>
+                <select class="form-select" th:field="*{activo}" required>
+                    <option value="true">Activo</option>
+                    <option value="false">Inactivo</option>
+                </select>
+            </div>
         </div>
 
-        <!-- Teléfono -->
-        <div class="mb-3">
-            <label for="telefono">Teléfono</label>
-            <input type="text" class="form-control" th:field="*{telefono}" id="telefono" />
+        <div class="mt-5 d-flex justify-content-between">
+            <a href="/usuarios" class="btn btn-cancel">
+                <i class="bi bi-x-circle me-2"></i>Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary-vibra">
+                <i class="bi bi-save me-2"></i>Guardar Cambios
+            </button>
         </div>
-
-        <!-- Sexo -->
-        <div class="mb-3">
-            <label for="sexo">Sexo</label>
-            <select class="form-select" th:field="*{sexo}" id="sexo" required>
-                <option value="M" th:selected="*{sexo == 'M'}">Masculino</option>
-                <option value="F" th:selected="*{sexo == 'F'}">Femenino</option>
-            </select>
-        </div>
-
-        <!-- Peso -->
-        <div class="mb-3">
-            <label for="peso">Peso</label>
-            <input type="number" step="0.01" class="form-control" th:field="*{peso}" id="peso" required />
-        </div>
-
-        <!-- Estatura -->
-        <div class="mb-3">
-            <label for="estatura">Estatura</label>
-            <input type="number" step="0.01" class="form-control" th:field="*{estatura}" id="estatura" required />
-        </div>
-
-        <!-- Fecha de nacimiento -->
-        <div class="mb-3">
-            <label for="fechaNacimiento">Fecha de Nacimiento</label>
-            <input type="date" class="form-control" th:field="*{fechaNacimiento}" id="fechaNacimiento" required />
-        </div>
-
-        <!-- Estado Físico -->
-        <div class="mb-3">
-            <label for="estadoFisico">Estado Físico</label>
-            <input type="text" class="form-control" th:field="*{estadoFisico}" id="estadoFisico" />
-        </div>
-
-        <!-- Objetivo -->
-        <div class="mb-3">
-            <label for="objetivo">Objetivo</label>
-            <input type="text" class="form-control" th:field="*{objetivo}" id="objetivo" />
-        </div>
-
-        <!-- Especialidad -->
-        <div class="mb-3">
-            <label for="especialidad">Especialidad</label>
-            <input type="text" class="form-control" th:field="*{especialidad}" id="especialidad" />
-        </div>
-
-        <!-- Horario de Inicio -->
-        <div class="mb-3">
-            <label for="horarioInicio">Horario de Inicio</label>
-            <input type="time" class="form-control" th:field="*{horarioInicio}" id="horarioInicio" />
-        </div>
-
-        <!-- Horario de Fin -->
-        <div class="mb-3">
-            <label for="horarioFin">Horario de Fin</label>
-            <input type="time" class="form-control" th:field="*{horarioFin}" id="horarioFin" />
-        </div>
-
-        <!-- Estado Activo -->
-        <div class="mb-3">
-            <label for="activo">Activo</label>
-            <select class="form-select" th:field="*{activo}" id="activo" required>
-                <option value="true" th:selected="*{activo}">Activo</option>
-                <option value="false" th:selected="*{activo == false}">Inactivo</option>
-            </select>
-        </div>
-
-        <!-- Rol -->
-        <div class="mb-3">
-            <label for="rol">Rol</label>
-            <select class="form-select" th:field="*{rol.rolId}" id="rol" required>
-                <option th:each="rol : ${roles}" th:value="${rol.rolId}" th:text="${rol.nombre}"></option>
-            </select>
-        </div>
-
-        <!-- Botón de Guardar -->
-        <button type="submit" class="btn btn-primary">Guardar</button>
-
-        <!-- Botón Cancelar (Enlace estilizado como botón) -->
-        <a href="/usuarios" class="btn btn-secondary">Cancelar</a>
-
     </form>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
