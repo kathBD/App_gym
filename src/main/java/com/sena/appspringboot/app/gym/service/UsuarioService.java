@@ -64,37 +64,48 @@ public class UsuarioService {
 
         if (usuarioForm.getUsuarioId() != null) {
             // --- CASO: EDICIÓN ---
-            // 1. Recuperamos los datos completos de la BD (incluye estatura, peso, etc.)
+            // 1. Recuperamos el usuario actual de la BD
             usuarioParaGuardar = usuarioRepository.findById(usuarioForm.getUsuarioId())
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + usuarioForm.getUsuarioId()));
 
-            // 2. Solo sobreescribimos los campos que vienen del formulario web
+            // 2. ACTUALIZACIÓN DE CAMPOS (Mapeo manual para no perder datos)
             usuarioParaGuardar.setNombre(usuarioForm.getNombre());
             usuarioParaGuardar.setCorreo(usuarioForm.getCorreo());
             usuarioParaGuardar.setTelefono(usuarioForm.getTelefono());
+            usuarioParaGuardar.setSexo(usuarioForm.getSexo());
             usuarioParaGuardar.setFechaNacimiento(usuarioForm.getFechaNacimiento());
+
+            // Campos físicos (¡Corregido!)
+            usuarioParaGuardar.setPeso(usuarioForm.getPeso());
+            usuarioParaGuardar.setEstatura(usuarioForm.getEstatura());
+
+            // Campos de perfil (¡Corregido!)
             usuarioParaGuardar.setObjetivo(usuarioForm.getObjetivo());
             usuarioParaGuardar.setEstadoFisico(usuarioForm.getEstadoFisico());
+
+            // Campos específicos de Entrenador (¡Corregido!)
+            usuarioParaGuardar.setEspecialidad(usuarioForm.getEspecialidad());
+            usuarioParaGuardar.setHorarioInicio(usuarioForm.getHorarioInicio());
+            usuarioParaGuardar.setHorarioFin(usuarioForm.getHorarioFin());
 
             if (usuarioForm.getActivo() != null) {
                 usuarioParaGuardar.setActivo(usuarioForm.getActivo());
             }
 
-            // 3. Actualización de Rol (si se cambió en el select)
+            // 3. Actualización de Rol
             if (usuarioForm.getRol() != null && usuarioForm.getRol().getRolId() != null) {
                 Rol rol = rolRepository.findById(usuarioForm.getRol().getRolId())
                         .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
                 usuarioParaGuardar.setRol(rol);
             }
 
-            // 4. Gestión de Contraseña en edición
-            // Si el campo de contraseña no está vacío y no es un hash, la ciframos y actualizamos
+            // 4. Gestión de Contraseña
             if (usuarioForm.getPassword() != null && !usuarioForm.getPassword().isBlank()) {
+                // Solo encriptamos si es una nueva contraseña (no es un hash)
                 if (!usuarioForm.getPassword().startsWith("$2a$")) {
                     usuarioParaGuardar.setPassword(passwordEncoder.encode(usuarioForm.getPassword()));
                 }
             }
-            // Si viene vacío, se queda la contraseña que ya tenía 'usuarioParaGuardar'
 
         } else {
             // --- CASO: NUEVO REGISTRO ---
@@ -105,7 +116,7 @@ public class UsuarioService {
                 throw new RuntimeException("El correo ya está registrado.");
             }
 
-            // Cifrar contraseña obligatoria
+            // Cifrar contraseña
             if (usuarioParaGuardar.getPassword() != null) {
                 usuarioParaGuardar.setPassword(passwordEncoder.encode(usuarioParaGuardar.getPassword()));
             }
@@ -122,8 +133,7 @@ public class UsuarioService {
             }
         }
 
-        // 5. Guardamos. Los campos como 'estatura' o 'peso' que no se tocaron
-        // mantienen el valor que tenían originalmente en la base de datos.
+        // 5. Persistencia final
         return usuarioRepository.save(usuarioParaGuardar);
     }
 

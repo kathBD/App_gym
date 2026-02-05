@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Reemplaza a @EnableGlobalMethodSecurity (que está obsoleta)
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
@@ -39,34 +40,42 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Deshabilitado para facilitar pruebas en API y formularios
+                // 1. Deshabilitar CSRF para permitir pruebas en Postman (POST/PUT/DELETE)
+                .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Recursos estáticos y rutas públicas
+                        // Recursos públicos
                         .requestMatchers("/", "/inicio", "/login", "/css/**", "/js/**", "/img/**", "/error/**").permitAll()
 
-                        // 2. Seguridad del CRUD de Usuarios (Web y API)
-                        // Usamos hasAuthority porque coincide exactamente con lo que devuelve tu UserDetailsService
+                        // Seguridad para Usuarios (Gestión)
                         .requestMatchers("/usuarios/editar/**", "/usuarios/eliminar/**", "/usuarios/guardar/**").hasAuthority("ROLE_ADMINISTRADOR")
                         .requestMatchers("/usuarios/**").hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_ENTRENADOR")
 
-                        // 3. Rutas de la API Rest
+                        // Seguridad para la API REST
                         .requestMatchers("/api/usuarios/**").hasAuthority("ROLE_ADMINISTRADOR")
 
-                        // 4. Rutas específicas por Rol
+                        // Rutas específicas por Rol
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMINISTRADOR")
                         .requestMatchers("/entrenador/**").hasAuthority("ROLE_ENTRENADOR")
                         .requestMatchers("/cliente/**").hasAuthority("ROLE_CLIENTE")
 
                         .anyRequest().authenticated()
                 )
+
+                // Configuración para el Navegador (Formulario de Login)
                 .formLogin(form -> form
                         .loginPage("/login")
                         .usernameParameter("correo")
                         .passwordParameter("password")
-                        .successHandler(successHandler) // Tu manejador personalizado para redirigir según rol
+                        .successHandler(successHandler)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
+
+                // CONFIGURACIÓN PARA POSTMAN (Autenticación Básica)
+                // Esto permite que Postman envíe credenciales en el Header de la petición
+                .httpBasic(Customizer.withDefaults())
+
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
@@ -74,8 +83,9 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
+
                 .exceptionHandling(exception -> exception
-                        .accessDeniedPage("/error/403") // Asegúrate de tener esta vista o controlador
+                        .accessDeniedPage("/error/403")
                 );
 
         return http.build();
