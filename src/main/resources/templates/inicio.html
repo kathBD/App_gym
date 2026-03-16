@@ -74,6 +74,10 @@
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/login}">Iniciar sesión</a>
                 </li>
+                <!-- Enlace de registro para nuevos clientes -->
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/registro}">Registrarse</a>
+                </li>
             </ul>
         </div>
     </div>
@@ -86,6 +90,12 @@
 <div class="container content text-center d-flex flex-column justify-content-center align-items-center" style="min-height: 80vh;">
 
     <h1 class="form-title">  ¡Bienvenido a la plataforma de entrenamiento!</h1>
+    <!-- Mensaje sobre el estado del registro -->
+    <p class="text-light">Por favor, regístrate para acceder a las rutinas y entrenamientos personalizados.
+        Recibirás un enlace para completar tu registro y activar tu cuenta.</p>
+
+    <!-- Botón de registro -->
+    <a th:href="@{/usuarios/nuevo}" class="btn btn-custom btn-lg mt-4">Registrarse</a>
 
 
     <div class="container mt-5 pt-3">

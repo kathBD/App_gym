@@ -6,8 +6,6 @@ import com.sena.appspringboot.app.gym.service.RolService;
 import com.sena.appspringboot.app.gym.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,19 +24,26 @@ public class UsuarioWebController {
     @Autowired
     private RolService rolService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;  // Inyectar el PasswordEncoder
+    @GetMapping
+    public String listarUsuarios(@RequestParam(value = "rol", required = false) String rol, Model model) {
+        List<Usuario> usuarios;
+        if (rol != null && !rol.isEmpty()) {
+            usuarios = usuarioService.getUsuariosPorRol(rol);
+            model.addAttribute("rolFiltrado", rol);
+        } else {
+            usuarios = usuarioService.getAllUsuarios();
+        }
+        model.addAttribute("usuarios", usuarios);
+        return "usuarios";
+    }
 
-    // Mostrar el formulario para registrar un nuevo usuario
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevoUsuario(Model model) {
-        List<Rol> roles = rolService.getAllRoles();
         Usuario usuario = new Usuario();
-        usuario.setRol(new Rol()); // Establecer un rol vacío para evitar problemas con el formulario
-
+        usuario.setRol(new Rol());
+        usuario.setActivo(true);
         model.addAttribute("usuario", usuario);
-        model.addAttribute("roles", roles);
-
+        model.addAttribute("roles", rolService.getAllRoles());
         return "registro_usuario";
     }
 
@@ -47,79 +52,49 @@ public class UsuarioWebController {
                                  BindingResult result,
                                  RedirectAttributes redirectAttributes,
                                  Model model) {
-        // Verifica si el correo ya está registrado
-        // Verificar si el correo ya está registrado
-        if (usuarioService.findByCorreo(usuario.getCorreo()) != null && usuario.getUsuarioId() == null) {
-            model.addAttribute("error", "Usuario ya registrado.");
+        if (result.hasErrors()) {
             model.addAttribute("roles", rolService.getAllRoles());
-            return "registro_usuario"; // Retorna al formulario si el correo ya está registrado
+            return "registro_usuario";
         }
-
-
+        if (usuario.getActivo() == null) {
+            usuario.setActivo(true);
+        }
         try {
-            // Encriptar la contraseña antes de guardar
-            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));  // Usando el PasswordEncoder inyectado
             usuarioService.guardarUsuario(usuario);
-
-            // Añadir el mensaje de éxito al objeto RedirectAttributes
-            redirectAttributes.addFlashAttribute("mensaje", "Usuario guardado correctamente.");
-
-            // Redirigir a la lista de usuarios
-            return "redirect:/usuarios"; // Redirige a la lista de usuarios
+            redirectAttributes.addFlashAttribute("mensaje", "¡Usuario guardado con éxito!");
+            return "redirect:/usuarios";
         } catch (Exception e) {
-            model.addAttribute("error", "Error al guardar el usuario: " + e.getMessage());
+            model.addAttribute("error", "Error: " + e.getMessage());
             model.addAttribute("roles", rolService.getAllRoles());
-            return "registro_usuario"; // Si hay un error, regresa al formulario
+            return "registro_usuario";
         }
     }
 
-    // Método para ver los detalles del usuario
     @GetMapping("/ver/{id}")
-    public String mostrarUsuario(@PathVariable Long id, Model model) {
-        // Obtener el usuario por ID
+    public String verUsuario(@PathVariable Long id, Model model) {
         Usuario usuario = usuarioService.obtenerPorId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + id));
-
-        // Agregar el usuario al modelo
+                .orElseThrow(() -> new IllegalArgumentException("ID inválido: " + id));
         model.addAttribute("usuario", usuario);
-
-        // Devolver la vista para mostrar el usuario
-        return "ver_usuario";  // Asegúrate de que la vista "ver_usuario.html" exista
+        return "ver_usuario";
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMINISTRADOR') or #id == authentication.principal.id")
     @GetMapping("/editar/{id}")
-    public String editarUsuario(@PathVariable Long id, Model model) {
-        try {
-            // Obtener el usuario por ID
-            Usuario usuario = usuarioService.obtenerPorId(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + id));
-
-            // Pasar el usuario y los roles al modelo
-            model.addAttribute("usuario", usuario);
-            model.addAttribute("roles", rolService.getAllRoles());
-
-            // Devolver la vista de edición
-            return "editar_usuario";  // Asegúrate de que la vista "editar_usuario.html" exista
-        } catch (Exception e) {
-            // Logueamos el error para depuración
-            System.out.println("Error al intentar editar el usuario: " + e.getMessage());
-            model.addAttribute("error", "Error al editar el usuario: " + e.getMessage());
-            return "error";  // Devolvemos una vista de error si algo sale mal
-        }
+    public String mostrarFormularioEditar(@PathVariable Long id, Model model) {
+        Usuario usuario = usuarioService.obtenerPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("ID inválido: " + id));
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("roles", rolService.getAllRoles());
+        return "registro_usuario";
     }
 
-
-    // Método para eliminar un usuario
     @PostMapping("/eliminar/{id}")
     public String eliminarUsuario(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             usuarioService.eliminarUsuario(id);
             redirectAttributes.addFlashAttribute("mensaje", "Usuario eliminado correctamente.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al eliminar el usuario.");
+            redirectAttributes.addFlashAttribute("error", "No se puede eliminar el usuario.");
         }
         return "redirect:/usuarios";
     }
-
 }

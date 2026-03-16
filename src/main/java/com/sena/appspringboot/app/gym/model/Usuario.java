@@ -1,7 +1,11 @@
 package com.sena.appspringboot.app.gym.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Past;
+
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.Period;
@@ -10,52 +14,63 @@ import java.time.Period;
 @Table(name = "usuarios")
 public class Usuario {
 
+    // ID de usuario, con estrategia de generación de valor automático (IDENTITY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "usuario_id")
     private Long usuarioId;
 
+    // Validación: El correo es obligatorio y debe ser un correo válido
     @NotBlank(message = "El correo es obligatorio")
     @Email(message = "Debe ser un correo válido")
     @Column(nullable = false, unique = true)
     private String correo;
 
+    // Validación: La contraseña es obligatoria y debe tener un mínimo de 6 caracteres
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
 
+    // Validación: El nombre es obligatorio
     @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
 
+    // Otros campos opcionales para el usuario
     private String telefono;
     private String sexo;
     private Double peso;
     private Double estatura;
 
-    private Boolean activo = true;  // Campo para indicar si el usuario está activo
+    // Flag para saber si el usuario está activo. Por defecto es true
+    private Boolean activo = true;
 
     private String especialidad;
     private String horarioInicio;
     private String horarioFin;
 
+    // Validación: La fecha de nacimiento debe estar en el pasado
     @Past(message = "La fecha debe estar en el pasado")
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 
+    // Fecha de registro automática cuando se inserta el usuario
     @Column(name = "fecha_registro", insertable = false, updatable = false)
     private LocalDateTime fechaRegistro;
 
+    // Relación ManyToOne con la tabla "roles", un usuario tiene un rol asignado
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
 
+    // Campo adicional para el objetivo del usuario (si lo tiene)
     @Size(max = 255)
     private String objetivo;
 
+    // Estado físico del usuario
     @Column(name = "estado_fisico")
     private String estadoFisico;
 
-    // Método para calcular la edad
+    // Método para calcular la edad del usuario en base a su fecha de nacimiento
     public Integer getEdad() {
         if (this.fechaNacimiento == null) {
             return null;
@@ -63,7 +78,7 @@ public class Usuario {
         return Period.between(this.fechaNacimiento, LocalDate.now()).getYears();
     }
 
-    // Getters y Setters
+    // Getters y Setters para todos los atributos
 
     public Long getUsuarioId() {
         return usuarioId;
@@ -201,4 +216,3 @@ public class Usuario {
         this.estadoFisico = estadoFisico;
     }
 }
-

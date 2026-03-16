@@ -20,38 +20,38 @@ public class ClienteController {
 
 
 
-        @Autowired
-        private RutinaService rutinaService;
+    @Autowired
+    private RutinaService rutinaService;
 
-        @Autowired
-        private UsuarioService usuarioService;
+    @Autowired
+    private UsuarioService usuarioService;
 
-        @GetMapping("")
-        public String dashboardCliente() {
-            return "cliente";
-        }
-
-        @GetMapping("/rutinas")
-        public String mostrarRutinasCliente(Model model) {
-            List<Rutina> rutinas = rutinaService.listarTodas(); // luego puedes filtrar por usuario
-            model.addAttribute("rutinas", rutinas);
-            return "/rutinas";
-        }
-        @GetMapping("/perfil")
-        public String mostrarPerfilCliente(Model model, Principal principal) {
-            // Obtener el correo del usuario autenticado
-            String correo = principal.getName();
-
-            // Buscar el usuario por correo
-            Usuario usuario = usuarioService.findByCorreo(correo);
-
-            // Pasar el usuario a la vista
-            model.addAttribute("usuario", usuario);
-
-            return "perfil";
-        }
-
-
+    @GetMapping("")
+    public String dashboardCliente() {
+        return "cliente";
     }
+
+    @GetMapping("/rutinas")
+    public String mostrarRutinasCliente(Model model) {
+        List<Rutina> rutinas = rutinaService.listarTodas(); // luego puedes filtrar por usuario
+        model.addAttribute("rutinas", rutinas);
+        return "/rutinas";
+    }
+    @GetMapping("/perfil")
+    public String mostrarPerfilCliente(Model model, Principal principal) {
+        // Obtener el correo del usuario autenticado
+        String correo = principal.getName();
+
+        // Buscar el usuario por correo
+        Usuario usuario = usuarioService.findByCorreo(correo);
+
+        // Pasar el usuario a la vista
+        model.addAttribute("usuario", usuario);
+
+        return "perfil";
+    }
+
+
+}
 
 

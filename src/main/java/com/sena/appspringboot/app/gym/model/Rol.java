@@ -1,6 +1,5 @@
 package com.sena.appspringboot.app.gym.model;
 
-
 import jakarta.persistence.*;
 
 @Entity
@@ -39,11 +38,13 @@ public class Rol {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+
+    // Método @PrePersist que garantiza que el nombre del rol tendrá el prefijo "ROLE_"
     @PrePersist
     private void asignarPrefijo() {
         if (nombre != null && !nombre.startsWith("ROLE_")) {
-            nombre = "ROLE_" + nombre; // Agrega el prefijo ROLE_
+            nombre = "ROLE_" + nombre; // Agrega el prefijo ROLE_ para cumplir con las convenciones de Spring Security
         }
     }
-
 }
+

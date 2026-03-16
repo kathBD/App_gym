@@ -1,10 +1,12 @@
 package com.sena.appspringboot.app.gym.config;
 
 import com.sena.appspringboot.app.gym.security.CustomAuthenticationSuccessHandler;
+import com.sena.appspringboot.app.gym.security.JwtAuthFilter;
 import com.sena.appspringboot.app.gym.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,6 +16,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -21,50 +27,78 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final CustomAuthenticationSuccessHandler successHandler;
+    private final JwtAuthFilter jwtAuthFilter;
 
     @Autowired
     public SecurityConfig(CustomUserDetailsService userDetailsService,
-                          CustomAuthenticationSuccessHandler successHandler) {
+                          CustomAuthenticationSuccessHandler successHandler,
+                          JwtAuthFilter jwtAuthFilter) {
         this.userDetailsService = userDetailsService;
         this.successHandler = successHandler;
+        this.jwtAuthFilter = jwtAuthFilter;
     }
 
-    // Definir PasswordEncoder como un bean
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Utiliza el algoritmo BCrypt
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/inicio", "/perfil", "/login", "/css/**", "/js/**", "/img/**").permitAll()  // Rutas públicas
-                        // Aquí es donde aseguramos que el nombre de la autoridad tiene el prefijo ROLE_
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMINISTRADOR")  // Solo ADMIN puede acceder a /admin/**
-                        .requestMatchers("/usuarios/**").hasAuthority("ROLE_ADMINISTRADOR")  // Solo ADMIN puede acceder a /usuarios/**
-                        .requestMatchers("/entrenador/**").hasAuthority("ROLE_ENTRENADOR")  // Solo ENTRENADOR puede acceder a /entrenador/**
-                        .requestMatchers("/cliente/**").hasAuthority("ROLE_CLIENTE")  // Solo CLIENTE puede acceder a /cliente/**
-                        .anyRequest().authenticated()  // El resto de las rutas requiere autenticación
+                        // CORS preflight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Públicos
+                        .requestMatchers("/", "/inicio", "/login",
+                                "/css/**", "/js/**", "/img/**", "/error/**").permitAll()
+                        // API REST (Angular + Android)
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/**").authenticated()
+                        // Web Thymeleaf
+                        .requestMatchers("/usuarios/**")
+                        .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_ENTRENADOR")
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMINISTRADOR")
+                        .requestMatchers("/entrenador/**").hasAuthority("ROLE_ENTRENADOR")
+                        .requestMatchers("/cliente/**").hasAuthority("ROLE_CLIENTE")
+                        .anyRequest().authenticated()
                 )
-                .authenticationProvider(authenticationProvider())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .usernameParameter("correo")
                         .passwordParameter("password")
-                        .failureUrl("/login?error=true")
                         .successHandler(successHandler)
-                        .permitAll()  // Permitir acceso sin autenticación a la página de login
+                        .failureUrl("/login?error=true")
+                        .permitAll()
+                )
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
-                        .permitAll()  // Permitir acceso sin autenticación al logout
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
                 )
                 .exceptionHandling(exception -> exception
-                        .accessDeniedPage("/error/403")  // Página cuando se deniega el acceso
+                        .accessDeniedPage("/error/403")
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            if (request.getRequestURI().startsWith("/api/")) {
+                                response.sendError(401, "Unauthorized");
+                            } else {
+                                response.sendRedirect("/login");
+                            }
+                        })
                 )
-                .csrf(csrf -> csrf.disable());  // Deshabilitar CSRF (para simplificar el ejemplo)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -73,13 +107,28 @@ public class SecurityConfig {
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());  // Asegúrate de que el PasswordEncoder esté correctamente inyectado
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOriginPatterns("*")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(false);
+            }
+        };
     }
 }
 

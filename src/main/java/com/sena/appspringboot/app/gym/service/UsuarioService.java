@@ -119,9 +119,9 @@ public class UsuarioService {
             usuario.setPassword(passwordActual);
         }
 
-        // Si el campo 'activo' es null, asignamos true por defecto
+        // Si el campo 'activo' es null, asignamos false (inactivo) para los clientes
         if (usuario.getActivo() == null) {
-            usuario.setActivo(true);
+            usuario.setActivo(false); // Asignamos por defecto a falso para los clientes registrados.
         }
 
         return usuarioRepository.save(usuario);
@@ -137,7 +137,46 @@ public class UsuarioService {
         return usuarioRepository.findByCorreo(correo);
     }
 
+    /**
+     * Busca los usuarios inactivos (por ejemplo, aquellos cuyo estado es 'false').
+     *
+     * @param activo Estado de la actividad (false para inactivos).
+     * @return Lista de usuarios inactivos.
+     */
+    public List<Usuario> findByActivo(Boolean activo) {
+        return usuarioRepository.findByActivo(activo);
+    }
 
+    /**
+     * Método específico para registrar un cliente (con estado inactivo por defecto).
+     *
+     * @param usuario Usuario cliente a registrar.
+     * @return El usuario registrado.
+     */
+    @Transactional
+    public Usuario registrarCliente(Usuario usuario) {
+        // Verificar que no exista un cliente con el mismo correo
+        if (usuarioRepository.findByCorreo(usuario.getCorreo()) != null) {
+            throw new RuntimeException("Ya existe un cliente registrado con este correo.");
+        }
+
+        // Codificar la contraseña si viene
+        if (usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
+            String passwordCifrada = passwordEncoder.encode(usuario.getPassword());
+            usuario.setPassword(passwordCifrada);
+        }
+
+        // Asignamos rol de cliente
+        Rol rolCliente = rolRepository.findByNombre("ROLE_CLIENTE")
+                .orElseThrow(() -> new RuntimeException("Rol de cliente no encontrado"));
+        usuario.setRol(rolCliente);
+
+        // Asignamos 'activo' como false para que el cliente quede inactivo por defecto
+        usuario.setActivo(false);
+
+        return usuarioRepository.save(usuario);
+    }
 }
+
 
 

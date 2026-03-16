@@ -1,6 +1,5 @@
 package com.sena.appspringboot.app.gym.repository;
 
-
 import com.sena.appspringboot.app.gym.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,18 +27,16 @@ public interface IUsuarioRepository extends JpaRepository<Usuario, Long> {
     /**
      * Busca un usuario por correo electrónico, ignorando mayúsculas/minúsculas.
      *
-     * Spring Data JPA genera automáticamente la consulta:
-     *   SELECT u FROM Usuario u WHERE LOWER(u.correo) = LOWER(?1)
-     *
      * @param correo Correo electrónico del usuario.
      * @return Optional con el usuario encontrado (si existe).
      */
-
-
     Optional<Usuario> findByCorreoIgnoreCase(String correo);
 
     Usuario findByCorreo(String correo);
 
     List<Usuario> findByObjetivoContainingIgnoreCase(String objetivo);
 
+    // Nuevo método para encontrar usuarios por su estado activo
+    List<Usuario> findByActivo(Boolean activo);  // Este es el método que necesitas agregar
 }
+
