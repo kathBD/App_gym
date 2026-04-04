@@ -58,6 +58,7 @@ public class SecurityConfig {
                         // Públicos
                         .requestMatchers("/", "/inicio", "/login",
                                 "/css/**", "/js/**", "/img/**", "/error/**").permitAll()
+                        .requestMatchers("/api/exercise-media/sync").permitAll()
                         // API REST (Angular + Android)
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/**").authenticated()

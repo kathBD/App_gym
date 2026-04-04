@@ -1,5 +1,8 @@
 package com.sena.appspringboot.app.gym.service;
 
+import com.sena.appspringboot.app.gym.model.ExerciseMedia;
+import com.sena.appspringboot.app.gym.repository.ExerciseMediaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -10,7 +13,11 @@ public class WgerService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+    @Autowired
+    private ExerciseMediaRepository mediaRepository;
+
     public List<Map<String, Object>> getExercises() {
+
         List<Map<String, Object>> ejercicios = new ArrayList<>();
 
         int offset = 0;
@@ -18,10 +25,12 @@ public class WgerService {
 
         try {
             while (true) {
+
                 String url = "https://wger.de/api/v2/exerciseinfo/?language=2&limit="
                         + limit + "&offset=" + offset;
 
-                Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+                Map<String, Object> response =
+                        restTemplate.getForObject(url, Map.class);
 
                 if (response == null || !response.containsKey("results")) break;
 
@@ -31,10 +40,12 @@ public class WgerService {
                 if (results == null || results.isEmpty()) break;
 
                 for (Map<String, Object> item : results) {
+
                     Map<String, Object> ejercicio = new HashMap<>();
 
-                    // ID
-                    ejercicio.put("id", item.get("id").toString());
+                    // 🆔 ID
+                    String id = item.get("id").toString();
+                    ejercicio.put("id", id);
 
                     // 🧠 TRADUCCIONES
                     String name = "Sin nombre";
@@ -56,13 +67,15 @@ public class WgerService {
                     ejercicio.put("name", name);
                     ejercicio.put("description", description);
 
-                    // 🖼 IMAGEN
+                    // 🖼 IMAGEN WGER
                     String imageUrl = null;
+
                     List<Map<String, Object>> images =
                             (List<Map<String, Object>>) item.get("images");
 
                     if (images != null && !images.isEmpty()) {
                         Object imgObj = images.get(0).get("image");
+
                         if (imgObj != null) {
                             String img = imgObj.toString();
                             imageUrl = img.startsWith("/")
@@ -73,15 +86,16 @@ public class WgerService {
 
                     ejercicio.put("imageUrl", imageUrl);
 
-                    // 📂 CATEGORÍA
+                    // 💪 CATEGORÍA
                     Map<String, Object> category =
                             (Map<String, Object>) item.get("category");
 
                     ejercicio.put("category",
                             category != null ? category.get("name") : "General");
 
-                    // 💪 MÚSCULOS
+                    // 🧬 MÚSCULOS
                     List<String> primaryMuscles = new ArrayList<>();
+
                     List<Map<String, Object>> muscles =
                             (List<Map<String, Object>>) item.get("muscles");
 
@@ -95,6 +109,15 @@ public class WgerService {
                     }
 
                     ejercicio.put("primaryMuscles", primaryMuscles);
+
+                    // 🔥 GIF DESDE TU BD (exercise_media)
+                    Optional<ExerciseMedia> media = mediaRepository.findByExerciseId(id);
+
+                    if (media.isPresent()) {
+                        ejercicio.put("gifUrl", media.get().getGifUrl());
+                    } else {
+                        ejercicio.put("gifUrl", null);
+                    }
 
                     ejercicios.add(ejercicio);
                 }
