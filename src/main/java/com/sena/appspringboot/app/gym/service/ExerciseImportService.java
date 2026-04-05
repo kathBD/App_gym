@@ -21,7 +21,7 @@ public class ExerciseImportService {
     @Autowired
     private ExerciseRepository exerciseRepository;
 
-    @PostConstruct
+    //@PostConstruct
     @Transactional
     public void importExercises() {
         try {
