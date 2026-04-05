@@ -1,0 +1,103 @@
+.
+├── backend_estructure.txt
+├── Dockerfile
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+├── README.md
+└── src
+    ├── main
+    │   ├── java
+    │   │   └── com
+    │   │       └── sena
+    │   │           └── appspringboot
+    │   │               └── app
+    │   │                   └── gym
+    │   │                       ├── AppGymApplication.java
+    │   │                       ├── config
+    │   │                       │   └── SecurityConfig.java
+    │   │                       ├── controller
+    │   │                       │   ├── AuthController.java
+    │   │                       │   ├── ClienteController.java
+    │   │                       │   ├── ExerciseController.java
+    │   │                       │   ├── HomeController.java
+    │   │                       │   ├── LoginController.java
+    │   │                       │   ├── RolesController.java
+    │   │                       │   ├── UsuarioController.java
+    │   │                       │   ├── UsuarioWebController.java
+    │   │                       │   └── WgerController.java
+    │   │                       ├── model
+    │   │                       │   ├── Ejercicio.java
+    │   │                       │   ├── EjercicioRutina.java
+    │   │                       │   ├── Exercise.java
+    │   │                       │   ├── ExerciseMedia.java
+    │   │                       │   ├── Rol.java
+    │   │                       │   ├── Rutina.java
+    │   │                       │   ├── TipoEjercicio.java
+    │   │                       │   └── Usuario.java
+    │   │                       ├── repository
+    │   │                       │   ├── ExerciseMediaRepository.java
+    │   │                       │   ├── ExerciseRepository.java
+    │   │                       │   ├── IEjercicioRepository.java
+    │   │                       │   ├── IRolRepository.java
+    │   │                       │   ├── IRutinaRepository.java
+    │   │                       │   ├── ITipoEjercicioRepository.java
+    │   │                       │   └── IUsuarioRepository.java
+    │   │                       ├── security
+    │   │                       │   ├── CustomAuthenticationSuccessHandler.java
+    │   │                       │   ├── CustomUserDetails.java
+    │   │                       │   ├── JwtAuthFilter.java
+    │   │                       │   └── JwtUtil.java
+    │   │                       └── service
+    │   │                           ├── CustomUserDetailsService.java
+    │   │                           ├── ExerciseImportService.java
+    │   │                           ├── ExerciseService.java
+    │   │                           ├── RolService.java
+    │   │                           ├── RutinaService.java
+    │   │                           ├── UsuarioService.java
+    │   │                           └── WgerService.java
+    │   └── resources
+    │       ├── application.properties
+    │       ├── data.sql
+    │       ├── exercises.json
+    │       ├── static
+    │       │   └── img
+    │       │       ├── admin.jpg
+    │       │       ├── entrenador.png
+    │       │       ├── fitnessgym.jpg
+    │       │       ├── fuerza.jpg
+    │       │       ├── gym.jpg
+    │       │       ├── login.jpg
+    │       │       ├── logo.jpg
+    │       │       └── trainner.jpg
+    │       └── templates
+    │           ├── activacion_pendiente.html
+    │           ├── Admin.html
+    │           ├── cliente.html
+    │           ├── editar_usuario.html
+    │           ├── eliminar_usuario.html
+    │           ├── entrenador.html
+    │           ├── error.html
+    │           ├── inicioAdmin.html
+    │           ├── inicio.html
+    │           ├── login.html
+    │           ├── perfil.html
+    │           ├── registro_cliente.html
+    │           ├── registro_exito.html
+    │           ├── registro_usuario.html
+    │           ├── rutinas.html
+    │           ├── usuarios.html
+    │           ├── validar_usuario.html
+    │           └── ver_usuario.html
+    └── test
+        └── java
+            └── com
+                └── sena
+                    └── appspringboot
+                        └── app
+                            └── gym
+                                ├── AppGymApplicationTests.java
+                                └── service
+                                    └── UserServiceTest.java
+
+27 directories, 74 files

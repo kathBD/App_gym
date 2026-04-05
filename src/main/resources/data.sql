@@ -609,7 +609,10 @@ CREATE TABLE `roles` (
 
 LOCK TABLES `roles` WRITE;
 /*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-INSERT INTO `roles` VALUES (1,'CLIENTE','Usuario que accede a los servicios del gimnasio como cliente.'),(2,'ENTRENADOR','Usuario encargado de guiar y supervisar entrenamientos.'),(3,'ADMINISTRADOR','Usuario con permisos totales para gestionar el sistema.');
+INSERT INTO roles (rol_id, nombre, descripcion) VALUES 
+(1, 'CLIENTE', 'Usuario que accede a los servicios del gimnasio como cliente.'),
+(2, 'ENTRENADOR', 'Usuario encargado de guiar y supervisar entrenamientos.'),
+(3, 'ADMINISTRADOR', 'Usuario con permisos totales para gestionar el sistema.');
 /*!40000 ALTER TABLE `roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
