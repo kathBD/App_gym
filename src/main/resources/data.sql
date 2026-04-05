@@ -695,7 +695,6 @@ CREATE TABLE `usuarios` (
   `estatura` double NOT NULL,
   `sexo` varchar(255) NOT NULL,
   `fecha_registro` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `esta_activo` bit(1) NOT NULL,
   `rol_id` int NOT NULL,
   `especialidad` varchar(255) DEFAULT NULL,
   `horario_inicio` varchar(255) DEFAULT NULL,
