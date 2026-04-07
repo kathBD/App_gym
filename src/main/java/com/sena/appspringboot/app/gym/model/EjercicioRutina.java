@@ -1,4 +1,5 @@
 package com.sena.appspringboot.app.gym.model;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -7,23 +8,47 @@ public class EjercicioRutina {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ejercicio_rutina_id")
     private Long ejercicioRutinaId;
 
-    private int series;
-    private int repeticiones;
-    private int peso;
-    private int descanso;
-    private int duracion;
+    @Column(nullable = false)
+    private Integer series;
 
-    @ManyToOne
-    @JoinColumn(name = "rutina_id")
+    @Column(nullable = false)
+    private Integer repeticiones;
+
+    private Double peso;  // Opcional, puede ser null
+
+    private Integer descanso; // segundos entre series
+
+    private Integer duracion; // duración en segundos (para ejercicios cardiovasculares)
+
+    private Integer orden; // orden del ejercicio dentro de la rutina
+
+    // ========== RELACIONES ==========
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rutina_id", nullable = false)
     private Rutina rutina;
 
-    @ManyToOne
-    @JoinColumn(name = "ejercicio_id")
-    private Ejercicio ejercicio;
+    // ⚠️ IMPORTANTE: Relación con Exercise (NO crear nuevos ejercicios)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ejercicio_id", nullable = false)
+    private Exercise ejercicio;  // Viene del catálogo (JSON)
 
-    // Getters y Setters
+    // ========== CONSTRUCTORES ==========
+
+    public EjercicioRutina() {}
+
+    public EjercicioRutina(Exercise ejercicio, Integer series, Integer repeticiones, Double peso, Integer orden) {
+        this.ejercicio = ejercicio;
+        this.series = series;
+        this.repeticiones = repeticiones;
+        this.peso = peso;
+        this.orden = orden;
+    }
+
+    // ========== GETTERS Y SETTERS ==========
 
     public Long getEjercicioRutinaId() {
         return ejercicioRutinaId;
@@ -33,44 +58,52 @@ public class EjercicioRutina {
         this.ejercicioRutinaId = ejercicioRutinaId;
     }
 
-    public int getSeries() {
+    public Integer getSeries() {
         return series;
     }
 
-    public void setSeries(int series) {
+    public void setSeries(Integer series) {
         this.series = series;
     }
 
-    public int getRepeticiones() {
+    public Integer getRepeticiones() {
         return repeticiones;
     }
 
-    public void setRepeticiones(int repeticiones) {
+    public void setRepeticiones(Integer repeticiones) {
         this.repeticiones = repeticiones;
     }
 
-    public int getPeso() {
+    public Double getPeso() {
         return peso;
     }
 
-    public void setPeso(int peso) {
+    public void setPeso(Double peso) {
         this.peso = peso;
     }
 
-    public int getDescanso() {
+    public Integer getDescanso() {
         return descanso;
     }
 
-    public void setDescanso(int descanso) {
+    public void setDescanso(Integer descanso) {
         this.descanso = descanso;
     }
 
-    public int getDuracion() {
+    public Integer getDuracion() {
         return duracion;
     }
 
-    public void setDuracion(int duracion) {
+    public void setDuracion(Integer duracion) {
         this.duracion = duracion;
+    }
+
+    public Integer getOrden() {
+        return orden;
+    }
+
+    public void setOrden(Integer orden) {
+        this.orden = orden;
     }
 
     public Rutina getRutina() {
@@ -81,11 +114,11 @@ public class EjercicioRutina {
         this.rutina = rutina;
     }
 
-    public Ejercicio getEjercicio() {
+    public Exercise getEjercicio() {
         return ejercicio;
     }
 
-    public void setEjercicio(Ejercicio ejercicio) {
+    public void setEjercicio(Exercise ejercicio) {
         this.ejercicio = ejercicio;
     }
 }

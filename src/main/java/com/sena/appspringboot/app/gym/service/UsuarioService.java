@@ -97,10 +97,19 @@ public class UsuarioService {
     @Transactional
     public Usuario guardarUsuario(Usuario usuario) {
         // Verificar y asignar el rol si viene con ID
-        if (usuario.getRol() != null && usuario.getRol().getRolId() != null) {
-            Rol rol = rolRepository.findById(usuario.getRol().getRolId())
-                    .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
-            usuario.setRol(rol);
+        // Verificar y asignar el rol
+        if (usuario.getRol() != null) {
+            Rol rol = null;
+            if (usuario.getRol().getRolId() != null) {
+                rol = rolRepository.findById(usuario.getRol().getRolId())
+                        .orElseThrow(() -> new RuntimeException("Rol no encontrado por ID"));
+            } else if (usuario.getRol().getNombre() != null) {
+                rol = rolRepository.findByNombre(usuario.getRol().getNombre())
+                        .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + usuario.getRol().getNombre()));
+            }
+            if (rol != null) {
+                usuario.setRol(rol);
+            }
         }
 
         // Verificar que no exista un usuario con el mismo correo
