@@ -11,7 +11,6 @@ public interface IRutinaRepository extends JpaRepository<Rutina, Long> {
 
     List<Rutina> findByClienteId(Long clienteId);
     List<Rutina> findByCreadorId(Long creadorId);
-    List<Rutina> findByUsuarioId(Long usuarioId);
     List<Rutina> findByNombreContainingIgnoreCase(String nombre);
     List<Rutina> findByActivoTrue();
     List<Rutina> findByNivel(String nivel);

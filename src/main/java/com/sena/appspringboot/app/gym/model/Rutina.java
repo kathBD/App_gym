@@ -2,6 +2,8 @@ package com.sena.appspringboot.app.gym.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "rutinas")
@@ -48,6 +50,10 @@ public class Rutina {
     @Column(name = "creador_id")
     private Long creadorId;
 
+    // 🔥 RELACIÓN COMENTADA - TEMPORALMENTE DESACTIVADA PARA EVITAR RECURSIÓN
+    // @OneToMany(mappedBy = "rutina", cascade = CascadeType.ALL, orphanRemoval = true)
+    // private List<EjercicioRutina> ejerciciosRutina = new ArrayList<>();
+
     // ========== CONSTRUCTORES ==========
     public Rutina() {}
 
@@ -67,54 +73,148 @@ public class Rutina {
     }
 
     // ========== GETTERS Y SETTERS ==========
-    public Integer getRutinaId() { return rutinaId; }
-    public void setRutinaId(Integer rutinaId) { this.rutinaId = rutinaId; }
+    public Integer getRutinaId() {
+        return rutinaId;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setRutinaId(Integer rutinaId) {
+        this.rutinaId = rutinaId;
+    }
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public Integer getSeries() { return series; }
-    public void setSeries(Integer series) { this.series = series; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public Integer getRepeticiones() { return repeticiones; }
-    public void setRepeticiones(Integer repeticiones) { this.repeticiones = repeticiones; }
+    public String getDescripcion() {
+        return descripcion;
+    }
 
-    public Integer getPlanId() { return planId; }
-    public void setPlanId(Integer planId) { this.planId = planId; }
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 
-    public Long getUsuarioId() { return usuarioId; }
-    public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
+    public Integer getSeries() {
+        return series;
+    }
 
-    public Boolean getEstaActiva() { return estaActiva; }
-    public void setEstaActiva(Boolean estaActiva) { this.estaActiva = estaActiva; }
+    public void setSeries(Integer series) {
+        this.series = series;
+    }
 
-    public String getDiaSemana() { return diaSemana; }
-    public void setDiaSemana(String diaSemana) { this.diaSemana = diaSemana; }
+    public Integer getRepeticiones() {
+        return repeticiones;
+    }
 
-    public Integer getDuracionMinutos() { return duracionMinutos; }
-    public void setDuracionMinutos(Integer duracionMinutos) { this.duracionMinutos = duracionMinutos; }
+    public void setRepeticiones(Integer repeticiones) {
+        this.repeticiones = repeticiones;
+    }
 
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public Integer getPlanId() {
+        return planId;
+    }
 
-    public String getNivel() { return nivel; }
-    public void setNivel(String nivel) { this.nivel = nivel; }
+    public void setPlanId(Integer planId) {
+        this.planId = planId;
+    }
 
-    public String getObjetivo() { return objetivo; }
-    public void setObjetivo(String objetivo) { this.objetivo = objetivo; }
+    public Long getUsuarioId() {
+        return usuarioId;
+    }
 
-    public Boolean getActivo() { return activo; }
-    public void setActivo(Boolean activo) { this.activo = activo; }
+    public void setUsuarioId(Long usuarioId) {
+        this.usuarioId = usuarioId;
+    }
 
-    public LocalDateTime getFechaModificacion() { return fechaModificacion; }
-    public void setFechaModificacion(LocalDateTime fechaModificacion) { this.fechaModificacion = fechaModificacion; }
+    public Boolean getEstaActiva() {
+        return estaActiva;
+    }
 
-    public Long getClienteId() { return clienteId; }
-    public void setClienteId(Long clienteId) { this.clienteId = clienteId; }
+    public void setEstaActiva(Boolean estaActiva) {
+        this.estaActiva = estaActiva;
+    }
 
-    public Long getCreadorId() { return creadorId; }
-    public void setCreadorId(Long creadorId) { this.creadorId = creadorId; }
+    public String getDiaSemana() {
+        return diaSemana;
+    }
+
+    public void setDiaSemana(String diaSemana) {
+        this.diaSemana = diaSemana;
+    }
+
+    public Integer getDuracionMinutos() {
+        return duracionMinutos;
+    }
+
+    public void setDuracionMinutos(Integer duracionMinutos) {
+        this.duracionMinutos = duracionMinutos;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public String getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(String nivel) {
+        this.nivel = nivel;
+    }
+
+    public String getObjetivo() {
+        return objetivo;
+    }
+
+    public void setObjetivo(String objetivo) {
+        this.objetivo = objetivo;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
+
+    public LocalDateTime getFechaModificacion() {
+        return fechaModificacion;
+    }
+
+    public void setFechaModificacion(LocalDateTime fechaModificacion) {
+        this.fechaModificacion = fechaModificacion;
+    }
+
+    public Long getClienteId() {
+        return clienteId;
+    }
+
+    public void setClienteId(Long clienteId) {
+        this.clienteId = clienteId;
+    }
+
+    public Long getCreadorId() {
+        return creadorId;
+    }
+
+    public void setCreadorId(Long creadorId) {
+        this.creadorId = creadorId;
+    }
+
+    // ========== GETTERS Y SETTERS PARA EJERCICIOS (COMENTADOS) ==========
+    // public List<EjercicioRutina> getEjerciciosRutina() {
+    //     return ejerciciosRutina;
+    // }
+    //
+    // public void setEjerciciosRutina(List<EjercicioRutina> ejerciciosRutina) {
+    //     this.ejerciciosRutina = ejerciciosRutina;
+    // }
 }

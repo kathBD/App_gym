@@ -26,19 +26,34 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        // No autenticar peticiones de login
+        if (path.contains("/api/auth/login")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
 
+        System.out.println("🔍 JWT Filter - URL: " + path);
+        System.out.println("🔍 JWT Filter - Header: " + (header != null ? "Presente" : "No presente"));
+
         if (header == null || !header.startsWith("Bearer ")) {
+            System.out.println("⚠️ No hay token Bearer, continuando...");
             chain.doFilter(request, response);
             return;
         }
 
         String token = header.substring(7);
+        System.out.println("🔍 Token recibido: " + token.substring(0, Math.min(50, token.length())) + "...");
 
         try {
             if (jwtUtil.isTokenValid(token)) {
                 String correo = jwtUtil.extractCorreo(token);
-                String rol    = jwtUtil.extractRol(token);
+                String rol = jwtUtil.extractRol(token);
+
+                System.out.println("✅ Token válido - Usuario: " + correo + ", Rol: " + rol);
 
                 List<SimpleGrantedAuthority> authorities =
                         List.of(new SimpleGrantedAuthority("ROLE_" + rol.toUpperCase()));
@@ -47,9 +62,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(correo, null, authorities);
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
+                System.out.println("✅ Autenticación establecida en contexto");
+            } else {
+                System.out.println("❌ Token inválido");
+                response.setStatus(401);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Token inválido\"}");
+                return;
             }
         } catch (Exception e) {
-            SecurityContextHolder.clearContext();
+            System.out.println("❌ Error procesando token: " + e.getMessage());
+            e.printStackTrace();
+            response.setStatus(401);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            return;
         }
 
         chain.doFilter(request, response);

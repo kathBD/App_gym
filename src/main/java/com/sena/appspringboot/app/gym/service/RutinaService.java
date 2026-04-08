@@ -42,11 +42,7 @@ public class RutinaService {
         return rutinaRepository.findByCreadorId(creadorId);
     }
 
-    //  Obtener rutinas por cliente
-    public List<Rutina> obtenerPorCliente(Long clienteId) {
-        return rutinaRepository.findByClienteId(clienteId);
-    }
-
+    
     // Asignar rutina a cliente
     public Rutina asignarACliente(Long rutinaId, Long clienteId) {
         Optional<Rutina> optional = rutinaRepository.findById(rutinaId);

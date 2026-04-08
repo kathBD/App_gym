@@ -15,7 +15,10 @@ public class ExerciseService {
     private ExerciseRepository exerciseRepository;
 
     public List<Exercise> getAllExercises() {
-        return exerciseRepository.findAll();
+        System.out.println("ExerciseService.getAllExercises() llamado");
+        List<Exercise> exercises = exerciseRepository.findAll();
+        System.out.println("Ejercicios encontrados: " + exercises.size());
+        return exercises;
     }
 
     public Optional<Exercise> getExerciseById(String id) {
