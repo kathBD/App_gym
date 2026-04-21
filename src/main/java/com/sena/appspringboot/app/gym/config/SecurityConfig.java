@@ -13,6 +13,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -56,44 +57,30 @@ public class SecurityConfig {
                         // CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Públicos
-                        .requestMatchers("/", "/inicio", "/login",
-                                "/css/**", "/js/**", "/img/**", "/error/**").permitAll()
-                        .requestMatchers("/api/exercise-media/sync").permitAll()
-                        // API REST (Angular + Android)
+                        .requestMatchers("/", "/inicio", "/login", "/css/**", "/js/**", "/img/**", "/error/**").permitAll()
+                        // API REST (Angular) - Públicos
                         .requestMatchers("/api/auth/**").permitAll()
+                        // APIs requieren autenticación
+                        .requestMatchers("/api/rutinas/**").authenticated()
+                        .requestMatchers("/api/exercises/**").authenticated()
                         .requestMatchers("/api/**").authenticated()
                         // Web Thymeleaf
-                        .requestMatchers("/usuarios/**")
-                        .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_ENTRENADOR")
+                        .requestMatchers("/usuarios/**").hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_ENTRENADOR")
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMINISTRADOR")
                         .requestMatchers("/entrenador/**").hasAuthority("ROLE_ENTRENADOR")
                         .requestMatchers("/cliente/**").hasAuthority("ROLE_CLIENTE")
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .usernameParameter("correo")
-                        .passwordParameter("password")
-                        .successHandler(successHandler)
-                        .failureUrl("/login?error=true")
-                        .permitAll()
-                )
+                // 🔥 IMPORTANTE: STATELESS para JWT
                 .sessionManagement(session -> session
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false)
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout=true")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .exceptionHandling(exception -> exception
-                        .accessDeniedPage("/error/403")
                         .authenticationEntryPoint((request, response, authException) -> {
                             if (request.getRequestURI().startsWith("/api/")) {
-                                response.sendError(401, "Unauthorized");
+                                response.setStatus(401);
+                                response.setContentType("application/json");
+                                response.getWriter().write("{\"error\": \"No autenticado\"}");
                             } else {
                                 response.sendRedirect("/login");
                             }

@@ -1,4 +1,5 @@
 package com.sena.appspringboot.app.gym.model;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
 

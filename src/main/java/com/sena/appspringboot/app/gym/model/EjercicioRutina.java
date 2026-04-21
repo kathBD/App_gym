@@ -1,4 +1,6 @@
 package com.sena.appspringboot.app.gym.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -7,85 +9,67 @@ public class EjercicioRutina {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ejercicio_rutina_id")
     private Long ejercicioRutinaId;
 
-    private int series;
-    private int repeticiones;
-    private int peso;
-    private int descanso;
-    private int duracion;
+    @Column(nullable = false)
+    private Integer series;
 
-    @ManyToOne
-    @JoinColumn(name = "rutina_id")
+    @Column(nullable = false)
+    private Integer repeticiones;
+
+    private Double peso;
+    private Integer descanso;
+    private Integer duracion;
+    private Integer orden;
+
+    // ========== RELACIONES ==========
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rutina_id", nullable = false)
     private Rutina rutina;
 
-    @ManyToOne
-    @JoinColumn(name = "ejercicio_id")
-    private Ejercicio ejercicio;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ejercicio_id", nullable = false)
+    private Exercise ejercicio;
 
-    // Getters y Setters
+    // ========== CONSTRUCTORES ==========
+    public EjercicioRutina() {}
 
-    public Long getEjercicioRutinaId() {
-        return ejercicioRutinaId;
-    }
-
-    public void setEjercicioRutinaId(Long ejercicioRutinaId) {
-        this.ejercicioRutinaId = ejercicioRutinaId;
-    }
-
-    public int getSeries() {
-        return series;
-    }
-
-    public void setSeries(int series) {
-        this.series = series;
-    }
-
-    public int getRepeticiones() {
-        return repeticiones;
-    }
-
-    public void setRepeticiones(int repeticiones) {
-        this.repeticiones = repeticiones;
-    }
-
-    public int getPeso() {
-        return peso;
-    }
-
-    public void setPeso(int peso) {
-        this.peso = peso;
-    }
-
-    public int getDescanso() {
-        return descanso;
-    }
-
-    public void setDescanso(int descanso) {
-        this.descanso = descanso;
-    }
-
-    public int getDuracion() {
-        return duracion;
-    }
-
-    public void setDuracion(int duracion) {
-        this.duracion = duracion;
-    }
-
-    public Rutina getRutina() {
-        return rutina;
-    }
-
-    public void setRutina(Rutina rutina) {
-        this.rutina = rutina;
-    }
-
-    public Ejercicio getEjercicio() {
-        return ejercicio;
-    }
-
-    public void setEjercicio(Ejercicio ejercicio) {
+    public EjercicioRutina(Exercise ejercicio, Integer series, Integer repeticiones, Double peso, Integer orden) {
         this.ejercicio = ejercicio;
+        this.series = series;
+        this.repeticiones = repeticiones;
+        this.peso = peso;
+        this.orden = orden;
     }
+
+    // ========== GETTERS Y SETTERS ==========
+    public Long getEjercicioRutinaId() { return ejercicioRutinaId; }
+    public void setEjercicioRutinaId(Long ejercicioRutinaId) { this.ejercicioRutinaId = ejercicioRutinaId; }
+
+    public Integer getSeries() { return series; }
+    public void setSeries(Integer series) { this.series = series; }
+
+    public Integer getRepeticiones() { return repeticiones; }
+    public void setRepeticiones(Integer repeticiones) { this.repeticiones = repeticiones; }
+
+    public Double getPeso() { return peso; }
+    public void setPeso(Double peso) { this.peso = peso; }
+
+    public Integer getDescanso() { return descanso; }
+    public void setDescanso(Integer descanso) { this.descanso = descanso; }
+
+    public Integer getDuracion() { return duracion; }
+    public void setDuracion(Integer duracion) { this.duracion = duracion; }
+
+    public Integer getOrden() { return orden; }
+    public void setOrden(Integer orden) { this.orden = orden; }
+
+    public Rutina getRutina() { return rutina; }
+    public void setRutina(Rutina rutina) { this.rutina = rutina; }
+
+    public Exercise getEjercicio() { return ejercicio; }
+    public void setEjercicio(Exercise ejercicio) { this.ejercicio = ejercicio; }
 }
