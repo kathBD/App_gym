@@ -4,10 +4,10 @@ Backend del sistema de gestión de gimnasio **VibraFit**, desarrollado con Sprin
 
 ---
 
-<img width="600" height="700" alt="image" src="https://github.com/user-attachments/assets/356b1de0-7ea5-4ffe-ad74-be7dfecc120d" />
-<img width="600" height="700" alt="image" src="https://github.com/user-attachments/assets/0e23cbb7-d439-4545-a123-7dd5a7405b95" />
-<img width="600" height="700" alt="image" src="https://github.com/user-attachments/assets/3ead93d0-99d7-4804-9ec0-7f56f4a2c2ba" />
-<img width="600" height="871" alt="image" src="https://github.com/user-attachments/assets/1c98fb77-6bc3-4b4d-8e05-bbf6718da556" />
+<img width="600" height="300" alt="image" src="https://github.com/user-attachments/assets/356b1de0-7ea5-4ffe-ad74-be7dfecc120d" />
+<img width="600" height="300" alt="image" src="https://github.com/user-attachments/assets/0e23cbb7-d439-4545-a123-7dd5a7405b95" />
+<img width="600" height="300" alt="image" src="https://github.com/user-attachments/assets/3ead93d0-99d7-4804-9ec0-7f56f4a2c2ba" />
+<img width="600" height="300" alt="image" src="https://github.com/user-attachments/assets/1c98fb77-6bc3-4b4d-8e05-bbf6718da556" />
 
 
 
