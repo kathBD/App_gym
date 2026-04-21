@@ -48,6 +48,71 @@ public class UsuarioController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Usuario> actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuarioActualizado) {
+        try {
+            System.out.println("📝 Actualizando usuario con ID: " + id);
+
+            Usuario usuario = usuarioService.obtenerPorId(id)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
+
+            if (usuarioActualizado.getNombre() != null) {
+                usuario.setNombre(usuarioActualizado.getNombre());
+            }
+            if (usuarioActualizado.getCorreo() != null) {
+                usuario.setCorreo(usuarioActualizado.getCorreo());
+            }
+            if (usuarioActualizado.getTelefono() != null) {
+                usuario.setTelefono(usuarioActualizado.getTelefono());
+            }
+            if (usuarioActualizado.getActivo() != null) {
+                usuario.setActivo(usuarioActualizado.getActivo());
+            }
+            if (usuarioActualizado.getRol() != null && usuarioActualizado.getRol().getRolId() != null) {
+                usuario.setRol(usuarioActualizado.getRol());
+            }
+            if (usuarioActualizado.getPassword() != null && !usuarioActualizado.getPassword().isEmpty()) {
+                usuario.setPassword(passwordEncoder.encode(usuarioActualizado.getPassword()));
+            }
+            if (usuarioActualizado.getSexo() != null) {
+                usuario.setSexo(usuarioActualizado.getSexo());
+            }
+            if (usuarioActualizado.getFechaNacimiento() != null) {
+                usuario.setFechaNacimiento(usuarioActualizado.getFechaNacimiento());
+            }
+            if (usuarioActualizado.getPeso() != null) {
+                usuario.setPeso(usuarioActualizado.getPeso());
+            }
+            if (usuarioActualizado.getEstatura() != null) {
+                usuario.setEstatura(usuarioActualizado.getEstatura());
+            }
+            if (usuarioActualizado.getObjetivo() != null) {
+                usuario.setObjetivo(usuarioActualizado.getObjetivo());
+            }
+            if (usuarioActualizado.getEspecialidad() != null) {
+                usuario.setEspecialidad(usuarioActualizado.getEspecialidad());
+            }
+            if (usuarioActualizado.getHorarioInicio() != null) {
+                usuario.setHorarioInicio(usuarioActualizado.getHorarioInicio());
+            }
+            if (usuarioActualizado.getHorarioFin() != null) {
+                usuario.setHorarioFin(usuarioActualizado.getHorarioFin());
+            }
+
+            Usuario usuarioGuardado = usuarioService.guardarUsuario(usuario);
+            usuarioGuardado.setPassword(null);
+
+            return ResponseEntity.ok(usuarioGuardado);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al actualizar usuario: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarApi(@PathVariable Long id) {
         usuarioService.eliminarUsuario(id);
@@ -118,4 +183,6 @@ public class UsuarioController {
 
         return ResponseEntity.ok(Map.of("message", "Contraseña actualizada correctamente"));
     }
+
+
 }

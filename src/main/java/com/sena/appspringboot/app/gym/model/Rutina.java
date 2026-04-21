@@ -1,5 +1,6 @@
 package com.sena.appspringboot.app.gym.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -50,9 +51,10 @@ public class Rutina {
     @Column(name = "creador_id")
     private Long creadorId;
 
-    // 🔥 RELACIÓN COMENTADA - TEMPORALMENTE DESACTIVADA PARA EVITAR RECURSIÓN
-    // @OneToMany(mappedBy = "rutina", cascade = CascadeType.ALL, orphanRemoval = true)
-    // private List<EjercicioRutina> ejerciciosRutina = new ArrayList<>();
+    // 🔥 RELACIÓN ACTIVADA con JsonIgnore para evitar recursión
+    @OneToMany(mappedBy = "rutina", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<EjercicioRutina> ejerciciosRutina = new ArrayList<>();
 
     // ========== CONSTRUCTORES ==========
     public Rutina() {}
@@ -209,12 +211,12 @@ public class Rutina {
         this.creadorId = creadorId;
     }
 
-    // ========== GETTERS Y SETTERS PARA EJERCICIOS (COMENTADOS) ==========
-    // public List<EjercicioRutina> getEjerciciosRutina() {
-    //     return ejerciciosRutina;
-    // }
-    //
-    // public void setEjerciciosRutina(List<EjercicioRutina> ejerciciosRutina) {
-    //     this.ejerciciosRutina = ejerciciosRutina;
-    // }
+    // ========== GETTER Y SETTER PARA EJERCICIOS ==========
+    public List<EjercicioRutina> getEjerciciosRutina() {
+        return ejerciciosRutina;
+    }
+
+    public void setEjerciciosRutina(List<EjercicioRutina> ejerciciosRutina) {
+        this.ejerciciosRutina = ejerciciosRutina;
+    }
 }

@@ -1,6 +1,6 @@
 package com.sena.appspringboot.app.gym.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -25,8 +25,7 @@ public class EjercicioRutina {
 
     // ========== RELACIONES ==========
 
-
-    @JsonBackReference
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rutina_id", nullable = false)
     private Rutina rutina;
